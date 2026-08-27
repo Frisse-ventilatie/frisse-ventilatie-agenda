@@ -164,7 +164,7 @@ const MANAGER_PASSWORD = 'frisse2026';
 const T={
   nl:{
     brandTag:'Afspraken agenda',viewLabel:'Weergave',viewManager:'Beheerder',viewClient:'Klant',
-    tabAgenda:'Afsprakenoverzicht',tabHolidays:'Vrije dagen & blokkades',
+    tabAgenda:'Afsprakenoverzicht',tabHolidays:'Vrije dagen & blokkades',tabRules:'Boekingsregels',
     userManager:'Ronald — Servicemonteur',userClient:'Klant overzicht',
     prevWeek:'← Vorige week',nextWeek:'Volgende week →',today:'Vandaag',
     statAvail:'Beschikbaar',statSlots:'tijdsloten',statConfirmed:'Bevestigd',statBookings:'afspraken',
@@ -202,6 +202,17 @@ const T={
     holFullDay:'Hele dag',holHalfDay:'Halve dag',holBlockHint:'Klik een dag om te blokkeren / deblokkeren',
     holAddDutch:'+ Nederlandse feestdagen 2026 toevoegen',holNamePh:'bijv. Nationale feestdag',
     holAddBtn:'Dag blokkeren',holSectionTitle:'Vrije dagen & Blokkades',
+    holRangeToggle:'Type',holSingleDay:'Losse dag',holDateRange:'Periode',
+    holStartDate:'Startdatum',holEndDate:'Einddatum',
+    toastHolRangeInvalid:'Kies een geldige periode (einddatum na of gelijk aan startdatum, met minstens één werkdag).',
+    toastHolRangeAdded:'Periode toegevoegd als vrije dagen.',
+    rulesSectionTitle:'Boekingsregels',
+    rulesIntro:'Stel per weekdag in hoeveel dagen van tevoren klanten minimaal moeten boeken. Vandaag is altijd geblokkeerd zodra de waarde 1 dag of meer is. De beheerder kan dit altijd overschrijven via een tijdslot.',
+    rulesDaysLabel:'dagen van tevoren',
+    rulesSaveBtn:'Regels opslaan',
+    rulesSaved:'Boekingsregels opgeslagen.',
+    rulesSaveFail:'Opslaan mislukt. Probeer opnieuw.',
+    rulesResetBtn:'Terugzetten naar standaard',
     toastDeleted:'Afspraak verwijderd.',toastApproved:'Afspraak bevestigd.',
     toastCreated:'Afspraak aangemaakt en bevestigd.',
     toastSubmitted:'Aanvraag verstuurd! Ronald neemt contact met u op ter bevestiging.',
@@ -221,7 +232,7 @@ const T={
   },
   en:{
     brandTag:'Appointment scheduler',viewLabel:'View',viewManager:'Manager',viewClient:'Client',
-    tabAgenda:'Booking agenda',tabHolidays:'Holidays & blocked days',
+    tabAgenda:'Booking agenda',tabHolidays:'Holidays & blocked days',tabRules:'Booking rules',
     userManager:'Ronald — Service engineer',userClient:'Client view',
     prevWeek:'← Previous week',nextWeek:'Next week →',today:'Today',
     statAvail:'Available',statSlots:'slots',statConfirmed:'Confirmed',statBookings:'bookings',
@@ -259,6 +270,17 @@ const T={
     holFullDay:'Full day',holHalfDay:'Half day',holBlockHint:'Click a day to block / unblock',
     holAddDutch:'+ Add Dutch public holidays 2026',holNamePh:'e.g. Bank holiday',
     holAddBtn:'Add blocked day',holSectionTitle:'Holidays & Blocked Days',
+    holRangeToggle:'Type',holSingleDay:'Single day',holDateRange:'Date range',
+    holStartDate:'Start date',holEndDate:'End date',
+    toastHolRangeInvalid:'Choose a valid range (end date on or after start date, with at least one weekday).',
+    toastHolRangeAdded:'Date range added as blocked days.',
+    rulesSectionTitle:'Booking Rules',
+    rulesIntro:'Set the minimum number of days ahead clients must book for each weekday. Today is always blocked once the value is 1 day or more. The manager can always override this per slot.',
+    rulesDaysLabel:'days ahead',
+    rulesSaveBtn:'Save rules',
+    rulesSaved:'Booking rules saved.',
+    rulesSaveFail:'Save failed. Please try again.',
+    rulesResetBtn:'Reset to default',
     toastDeleted:'Booking deleted.',toastApproved:'Booking confirmed.',
     toastCreated:'Booking created and confirmed.',
     toastSubmitted:'Request sent! Ronald will contact you to confirm.',
@@ -339,6 +361,19 @@ async function loadHolidays(){
   }
 }
 
+async function loadRules(){
+  try{
+    const res=await fetch(RULES_API_BASE,{cache:'no-store'});
+    if(!res.ok)throw new Error('load_failed');
+    const data=await res.json();
+    APP.rules={...DEFAULT_RULES,...data};
+    APP.rulesLoaded=true;APP.rulesLoadError=false;
+  }catch(e){
+    APP.rules=APP.rules||{...DEFAULT_RULES};
+    APP.rulesLoadError=true;
+  }
+}
+
 const SLOTS=[{label:'08:00–11:00',start:8,id:'am1'},{label:'09:00–12:00',start:9,id:'am2'},{label:'13:00–16:00',start:13,id:'pm'}];
 const DUTCH_HOL_2026=[{date:'2026-01-01',name:'Nieuwjaarsdag / New Year\'s Day'},{date:'2026-04-03',name:'Goede Vrijdag / Good Friday'},{date:'2026-04-06',name:'Tweede Paasdag / Easter Monday'},{date:'2026-04-27',name:'Koningsdag / King\'s Day'},{date:'2026-05-14',name:'Hemelvaartsdag / Ascension Day'},{date:'2026-05-25',name:'Tweede Pinksterdag / Whit Monday'},{date:'2026-12-25',name:'Eerste Kerstdag / Christmas Day'},{date:'2026-12-26',name:'Tweede Kerstdag / Boxing Day'}];
 
@@ -349,11 +384,14 @@ const DUTCH_HOL_2026=[{date:'2026-01-01',name:'Nieuwjaarsdag / New Year\'s Day'}
 // visible to clients on other devices too.
 const API_BASE='/api/bookings';
 const HOLIDAYS_API_BASE='/api/holidays';
+const RULES_API_BASE='/api/rules';
 const APP={
   lang:'nl',view:'client',tab:'agenda',holSubTab:'list',weekOffset:0,modal:null,
   managerUnlocked:false,showPwModal:false,pwError:false,
   bookingsLoaded:false,bookingsLoadError:false,
   holidaysLoaded:false,holidaysLoadError:false,
+  rulesLoaded:false,rulesLoadError:false,
+  rules:null,
   bookings:[],
   holidays:[],
   get currentWeekMonday(){return addDays(mondayOf(TODAY),this.weekOffset*7)},
@@ -361,15 +399,28 @@ const APP={
 };
 
 function isHoliday(d){return APP.holidays.find(h=>h.date===toDS(d))}
+const DOW_KEYS=['sun','mon','tue','wed','thu','fri','sat'];
+const DEFAULT_RULES={mon:4,tue:2,wed:2,thu:2,fri:7};
+function minNoticeDaysFor(date){
+  const key=DOW_KEYS[date.getDay()];
+  const rules=APP.rules||DEFAULT_RULES;
+  const v=rules[key];
+  return (typeof v==='number'&&v>=0)?v:(DEFAULT_RULES[key]??2);
+}
 function getSlotState(date,slotId,isClient){
   if(isWeekend(date)) return null;
   const t=APP.t;const hol=isHoliday(date);
   if(hol) return{type:'holiday',label:t.slotNa,icon:'🏖',reason:hol.name};
-  const ds=toDS(date),dow=date.getDay();
-  if(slotId==='pm'&&(dow===4||dow===5)&&diffDays(TODAY,date)<7)
-    return{type:'na',label:t.slotNa,icon:'⏰',reason:APP.lang==='nl'?'Min. 7 dagen van tevoren':'Min. 7 days advance notice'};
+  const ds=toDS(date);
   if(isClient){
-    if(bizDaysAhead(date)<=2) return{type:'na',label:t.slotNa,icon:'⏰',reason:APP.lang==='nl'?'Binnen 2 werkdagen':'Within 2 business days'};
+    const need=minNoticeDaysFor(date);
+    if(diffDays(TODAY,date)<need){
+      const dayLabel=t.weekdays[date.getDay()===0?6:date.getDay()-1];
+      const reason=APP.lang==='nl'
+        ?`${dayLabel}: min. ${need} ${need===1?'dag':'dagen'} van tevoren boeken`
+        :`${dayLabel}: book at least ${need} ${need===1?'day':'days'} ahead`;
+      return{type:'na',label:t.slotNa,icon:'⏰',reason};
+    }
     if(date<mondayOf(TODAY)) return{type:'na',label:t.slotNa,icon:'⏰'};
     if(date>addDays(TODAY,31)) return{type:'na',label:t.slotNa,icon:'⏰'};
   }
@@ -417,7 +468,7 @@ function buildApp(){
   return`<div style="min-height:100vh;background:#f9f9f9">
     ${buildHeader()}${buildViewBar()}${buildTabBar()}
     <div class="main">
-      ${(APP.bookingsLoadError||APP.holidaysLoadError)?buildLoadErrorBanner():''}
+      ${(APP.bookingsLoadError||APP.holidaysLoadError||APP.rulesLoadError)?buildLoadErrorBanner():''}
       ${buildTabContent()}
     </div>
     ${APP.modal?`<div style="padding:0 28px 32px">${buildModal()}</div>`:''}
@@ -485,14 +536,44 @@ function buildViewBar(){
 
 function buildTabBar(){
   const t=APP.t;
-  const tabs=APP.view==='manager'?[{id:'agenda',label:t.tabAgenda},{id:'holidays',label:t.tabHolidays}]:[{id:'agenda',label:t.tabAgenda}];
+  const tabs=APP.view==='manager'?[{id:'agenda',label:t.tabAgenda},{id:'holidays',label:t.tabHolidays},{id:'rules',label:t.tabRules}]:[{id:'agenda',label:t.tabAgenda}];
   return`<div class="tab-bar">${tabs.map(tb=>`<button class="tab ${APP.tab===tb.id?'active':''}" onclick="setTab('${tb.id}')">${tb.label}</button>`).join('')}</div>`;
 }
 
 function buildTabContent(){
   if(APP.tab==='agenda') return buildAgenda();
   if(APP.tab==='holidays') return buildHolidays();
+  if(APP.tab==='rules') return buildRules();
   return'';
+}
+
+function buildRules(){
+  const t=APP.t;
+  const rules={...DEFAULT_RULES,...(APP.rules||{})};
+  const dayOrder=[
+    {key:'mon',label:t.weekdays[0]},
+    {key:'tue',label:t.weekdays[1]},
+    {key:'wed',label:t.weekdays[2]},
+    {key:'thu',label:t.weekdays[3]},
+    {key:'fri',label:t.weekdays[4]},
+  ];
+  const rows=dayOrder.map(d=>`
+    <div class="booking-detail-row">
+      <span class="lbl" style="min-width:120px">${d.label}</span>
+      <span class="val" style="display:flex;align-items:center;gap:8px;font-weight:400">
+        <input class="form-input" type="number" min="0" max="60" style="width:80px;text-align:center"
+          id="rule-${d.key}" value="${rules[d.key]}">
+        <span style="color:var(--fv-text-light);font-size:12px">${t.rulesDaysLabel}</span>
+      </span>
+    </div>`).join('');
+  return`
+    <div class="section-header"><span class="section-title">${t.rulesSectionTitle}</span></div>
+    <div class="info-row">${t.rulesIntro}</div>
+    <div class="booking-detail" style="max-width:420px">${rows}</div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-primary" onclick="saveRules()">${t.rulesSaveBtn}</button>
+      <button class="btn btn-secondary" onclick="resetRules()">${t.rulesResetBtn}</button>
+    </div>`;
 }
 
 function buildAgenda(){
@@ -580,7 +661,25 @@ function buildHolidays(){
     for(let day=1;day<=dim;day++){const d=new Date(y,m,day);const ds=toDS(d);const hol=APP.holidays.find(h=>h.date===ds);cells+=`<div class="mini-cal-day ${sameDay(d,TODAY)?'today-d':''} ${hol?'blocked':''}" onclick="quickBlockDay('${ds}')">${day}</div>`;}
     content=`<div class="mini-cal"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-size:13px;font-weight:700;text-transform:capitalize">${mn}</span><span style="font-size:11px;color:var(--fv-text-light)">${t.holBlockHint}</span></div><div class="mini-cal-grid">${dh}${cells}</div></div><button class="btn btn-primary btn-sm" onclick="addDutchHols()">${t.holAddDutch}</button>`;
   } else {
-    content=`<div style="max-width:380px"><div class="form-group"><label class="form-label">${t.blockDate}</label><input class="form-input" type="date" id="hol-date"/></div><div class="form-group"><label class="form-label">${t.holDesc}</label><input class="form-input" type="text" id="hol-name" placeholder="${t.holNamePh}"/></div><div class="form-group"><label class="form-label">${t.blockType}</label><select class="form-select" id="hol-type"><option value="full">${t.blockFull}</option><option value="half">${t.blockHalf}</option></select></div><button class="btn btn-primary" onclick="addHoliday()">${t.holAddBtn}</button></div>`;
+    content=`<div style="max-width:380px">
+      <div class="form-group">
+        <label class="form-label">${t.holRangeToggle}</label>
+        <div style="display:flex;gap:16px;font-size:13px;margin-top:4px">
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:500"><input type="radio" name="hol-mode" value="single" checked onclick="toggleHolMode()">${t.holSingleDay}</label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:500"><input type="radio" name="hol-mode" value="range" onclick="toggleHolMode()">${t.holDateRange}</label>
+        </div>
+      </div>
+      <div id="hol-single-fields">
+        <div class="form-group"><label class="form-label">${t.blockDate}</label><input class="form-input" type="date" id="hol-date"/></div>
+      </div>
+      <div id="hol-range-fields" style="display:none">
+        <div class="form-group"><label class="form-label">${t.holStartDate}</label><input class="form-input" type="date" id="hol-start-date"/></div>
+        <div class="form-group"><label class="form-label">${t.holEndDate}</label><input class="form-input" type="date" id="hol-end-date"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">${t.holDesc}</label><input class="form-input" type="text" id="hol-name" placeholder="${t.holNamePh}"/></div>
+      <div class="form-group"><label class="form-label">${t.blockType}</label><select class="form-select" id="hol-type"><option value="full">${t.blockFull}</option><option value="half">${t.blockHalf}</option></select></div>
+      <button class="btn btn-primary" onclick="addHoliday()">${t.holAddBtn}</button>
+    </div>`;
   }
   return`<div class="section-header"><span class="section-title">${t.holSectionTitle}</span></div>${tabs}${content}`;
 }
@@ -758,11 +857,46 @@ function attachEvents(){
     }
   };
 
+  window.saveRules=async()=>{
+    const t=APP.t;
+    const updated={};
+    for(const k of['mon','tue','wed','thu','fri']){
+      const el=document.getElementById(`rule-${k}`);
+      const v=parseInt(el?.value,10);
+      updated[k]=Number.isFinite(v)&&v>=0?v:DEFAULT_RULES[k];
+    }
+    const prev=APP.rules;
+    APP.rules=updated;render();
+    try{
+      const res=await fetch(RULES_API_BASE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(updated)});
+      if(!res.ok)throw new Error('save_failed');
+      toast(t.rulesSaved);
+    }catch(e){
+      APP.rules=prev;render();
+      toast(t.rulesSaveFail);
+    }
+  };
+
+  window.resetRules=async()=>{
+    const t=APP.t;
+    const prev=APP.rules;
+    APP.rules={...DEFAULT_RULES};render();
+    try{
+      const res=await fetch(RULES_API_BASE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(DEFAULT_RULES)});
+      if(!res.ok)throw new Error('save_failed');
+      toast(t.rulesSaved);
+    }catch(e){
+      APP.rules=prev;render();
+      toast(t.rulesSaveFail);
+    }
+  };
+
   window.loadBookings=loadBookings;
   window.loadHolidays=loadHolidays;
+  window.loadRules=loadRules;
   window.retryLoadBookings=async()=>{
-    APP.bookingsLoadError=false;APP.holidaysLoadError=false;render();
-    await Promise.all([loadBookings(),loadHolidays()]);render();
+    APP.bookingsLoadError=false;APP.holidaysLoadError=false;APP.rulesLoadError=false;render();
+    await Promise.all([loadBookings(),loadHolidays(),loadRules()]);render();
   };
 
   window.deleteHoliday=async id=>{
@@ -778,10 +912,47 @@ function attachEvents(){
     }
   };
 
+  window.toggleHolMode=()=>{
+    const mode=document.querySelector('input[name="hol-mode"]:checked')?.value||'single';
+    const single=document.getElementById('hol-single-fields');
+    const range=document.getElementById('hol-range-fields');
+    if(!single||!range)return;
+    if(mode==='range'){single.style.display='none';range.style.display='block';}
+    else{single.style.display='block';range.style.display='none';}
+  };
+
   window.addHoliday=async()=>{
     const t=APP.t;
-    const date=document.getElementById('hol-date').value,name=document.getElementById('hol-name').value.trim(),type=document.getElementById('hol-type').value;
-    if(!date||!name){toast(t.toastHolFill);return;}
+    const mode=document.querySelector('input[name="hol-mode"]:checked')?.value||'single';
+    const name=document.getElementById('hol-name').value.trim();
+    const type=document.getElementById('hol-type').value;
+    if(!name){toast(t.toastHolFill);return;}
+
+    if(mode==='range'){
+      const startVal=document.getElementById('hol-start-date').value;
+      const endVal=document.getElementById('hol-end-date').value;
+      if(!startVal||!endVal){toast(t.toastHolFill);return;}
+      const start=parseLocalDate(startVal),end=parseLocalDate(endVal);
+      if(end<start){toast(t.toastHolRangeInvalid);return;}
+      const items=[];
+      for(let d=new Date(start);d<=end;d=addDays(d,1)){
+        if(!isWeekend(d)) items.push({date:toDS(d),name,type});
+      }
+      if(!items.length){toast(t.toastHolRangeInvalid);return;}
+      try{
+        const res=await fetch(HOLIDAYS_API_BASE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items})});
+        if(!res.ok)throw new Error('bulk_add_failed');
+        APP.holidays=await res.json();
+        APP.holSubTab='list';render();
+        toast(t.toastHolRangeAdded);
+      }catch(e){
+        toast(APP.lang==='nl'?'Toevoegen mislukt — probeer opnieuw.':'Adding failed — please try again.');
+      }
+      return;
+    }
+
+    const date=document.getElementById('hol-date').value;
+    if(!date){toast(t.toastHolFill);return;}
     try{
       const res=await fetch(HOLIDAYS_API_BASE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,name,type})});
       if(!res.ok)throw new Error('add_failed');
@@ -858,7 +1029,7 @@ function attachEvents(){
 (async function init(){
   const app=document.getElementById('app');
   if(app)app.innerHTML='<div style="padding:80px 20px;text-align:center;color:#616161;font-family:\'Open Sans\',system-ui,sans-serif;font-size:13px">'+(APP.lang==='nl'?'Agenda laden…':'Loading agenda…')+'</div>';
-  await Promise.all([loadBookings(),loadHolidays()]);
+  await Promise.all([loadBookings(),loadHolidays(),loadRules()]);
   render();
 })();
 </script>
