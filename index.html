@@ -290,6 +290,33 @@ function bizDate(n){let d=new Date(TODAY);let c=0;while(c<n){d.setDate(d.getDate
 function bizDaysAhead(t){let c=0;let d=new Date(TODAY);while(d<t){d.setDate(d.getDate()+1);if(!isWeekend(d))c++;}return c}
 function toast(msg,dur=3000){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur)}
 
+// All bookings live server-side (see loadBookings/submitBooking below). This
+// Formspree endpoint is only for the email notification when a client submits
+// a request — the booking itself is already safely saved via /api/bookings
+// before this ever fires, so a failed email never loses a booking.
+const FORMSPREE_URL='https://formspree.io/f/xdaryral';
+
+async function notifyByEmail(booking){
+  const slotLabel=SLOTS.find(s=>s.id===booking.slot)?.label||booking.slot;
+  const svcLabel=T.nl.serviceTypes.find(s=>s.value===booking.serviceType)?.label||booking.serviceType||'';
+  await fetch(FORMSPREE_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json',Accept:'application/json'},
+    body:JSON.stringify({
+      _subject:`Nieuwe afspraak aanvraag — ${booking.ref||''}`,
+      Referentie:booking.ref||'',
+      Datum:booking.date,
+      Tijdslot:slotLabel,
+      Adres:booking.address,
+      Contactpersoon:booking.contact||'-',
+      Email:booking.email||'-',
+      'Type service':svcLabel,
+      'Aanvullende info':booking.additionalInfo||'-',
+      Opmerkingen:booking.comments||'-',
+    }),
+  });
+}
+
 async function loadBookings(){
   try{
     const res=await fetch(API_BASE,{cache:'no-store'});
@@ -722,6 +749,9 @@ function attachEvents(){
       APP.bookings.push(created);
       APP.modal=null;render();
       toast(APP.view==='manager'?t.toastCreated:t.toastSubmitted,4000);
+      // Best-effort — the booking is already safely saved above, so a Formspree
+      // hiccup here (offline, quota, etc.) never causes a lost booking.
+      if(APP.view!=='manager'){notifyByEmail(created).catch(()=>{});}
     }catch(e){
       if(btn){btn.disabled=false;btn.textContent=t.submitRequest;}
       toast(t.toastSubmitFail);
