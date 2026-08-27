@@ -1,0 +1,834 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --fv-green:#2e7d32;--fv-green-light:#43a047;--fv-green-pale:#e8f5e9;--fv-green-border:#a5d6a7;
+  --fv-amber:#e65100;--fv-amber-bg:#fff8e1;--fv-amber-border:#ffe082;
+  --fv-red:#c62828;--fv-red-bg:#ffebee;--fv-red-border:#ef9a9a;
+  --fv-blue:#1565c0;--fv-blue-bg:#e3f2fd;--fv-blue-border:#90caf9;
+  --fv-grey:#757575;--fv-grey-bg:#f5f5f5;--fv-grey-border:#e0e0e0;
+  --fv-text:#212121;--fv-text-light:#616161;
+  --font:'Open Sans',system-ui,sans-serif;
+  --radius:8px;--shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+body{font-family:var(--font);font-size:14px;color:var(--fv-text);background:#f9f9f9;min-height:100vh}
+.app-header{background:#fff;border-bottom:3px solid var(--fv-green);box-shadow:var(--shadow)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-logo{width:42px;height:42px;background:var(--fv-green);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand-logo svg{width:24px;height:24px;fill:white}
+.brand-name{font-size:20px;font-weight:700;color:var(--fv-green)}
+.brand-tag{font-size:11px;color:var(--fv-text-light);margin-top:1px}
+.header-right{display:flex;align-items:center;gap:10px}
+.user-chip{display:flex;align-items:center;gap:8px;background:var(--fv-green-pale);border:1px solid var(--fv-green-border);border-radius:20px;padding:5px 14px 5px 8px;font-size:12px;font-weight:600;color:var(--fv-green)}
+.user-dot{width:22px;height:22px;border-radius:50%;background:var(--fv-green);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white}
+.lang-toggle{display:flex;border:1px solid var(--fv-green-border);border-radius:20px;overflow:hidden;background:white}
+.lang-btn{background:none;border:none;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);color:var(--fv-green);transition:background 0.15s}
+.lang-btn.active{background:var(--fv-green);color:white}
+.lang-btn:not(.active):hover{background:var(--fv-green-pale)}
+.view-bar{background:#fff;border-bottom:1px solid var(--fv-grey-border);padding:10px 28px;display:flex;align-items:center;gap:10px}
+.view-label{font-size:11px;font-weight:700;color:var(--fv-text-light);text-transform:uppercase;letter-spacing:0.06em;margin-right:4px}
+.view-toggle{display:flex;border:1px solid var(--fv-grey-border);border-radius:6px;overflow:hidden}
+.vtbtn{background:none;border:none;border-right:1px solid var(--fv-grey-border);color:var(--fv-text-light);font-size:12px;font-weight:600;padding:6px 18px;cursor:pointer;font-family:var(--font);transition:background 0.15s}
+.vtbtn:last-child{border-right:none}
+.vtbtn.active{background:var(--fv-green);color:white}
+.vtbtn:not(.active):hover{background:var(--fv-green-pale);color:var(--fv-green)}
+.tab-bar{background:#fff;border-bottom:1px solid var(--fv-grey-border);display:flex;padding:0 28px}
+.tab{background:none;border:none;border-bottom:3px solid transparent;padding:12px 18px;font-size:13px;font-weight:600;color:var(--fv-text-light);cursor:pointer;font-family:var(--font)}
+.tab.active{color:var(--fv-green);border-bottom-color:var(--fv-green)}
+.tab:hover:not(.active){color:var(--fv-green)}
+.main{padding:24px 28px;max-width:960px}
+.week-nav{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.wk-btn{background:#fff;border:1px solid var(--fv-grey-border);border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--fv-green);font-family:var(--font)}
+.wk-btn:hover{background:var(--fv-green-pale)}
+.wk-label{font-size:14px;font-weight:700;color:var(--fv-text);min-width:220px;text-align:center}
+.today-btn{background:var(--fv-green);color:white;border:none;border-radius:6px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)}
+.stats-row{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+.stat-card{background:#fff;border:1px solid var(--fv-grey-border);border-radius:var(--radius);padding:12px 18px;display:flex;flex-direction:column;gap:3px;min-width:110px;box-shadow:var(--shadow)}
+.stat-label{font-size:10px;font-weight:700;color:var(--fv-text-light);letter-spacing:0.06em;text-transform:uppercase}
+.stat-value{font-size:22px;font-weight:700}
+.stat-sub{font-size:11px;color:var(--fv-text-light)}
+.fill-bar{height:4px;background:var(--fv-grey-bg);border-radius:2px;margin-top:4px}
+.fill-bar-inner{height:4px;background:var(--fv-green);border-radius:2px}
+.cal-wrap{background:#fff;border:1px solid var(--fv-grey-border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.cal-head{display:grid;grid-template-columns:72px repeat(5,1fr);background:var(--fv-green)}
+.cal-head-cell{padding:12px 8px;text-align:center;color:rgba(255,255,255,0.9);font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;border-right:1px solid rgba(255,255,255,0.15)}
+.cal-head-cell:first-child{background:rgba(0,0,0,0.1);color:rgba(255,255,255,0.6);font-size:10px}
+.cal-head-cell .date-num{font-size:22px;font-weight:700;color:white;display:block;margin-top:3px;line-height:1}
+.cal-head-cell.today-col{background:var(--fv-green-light)}
+.cal-body{display:grid;grid-template-columns:72px repeat(5,1fr)}
+.time-label{padding:10px 8px;text-align:right;font-size:11px;font-weight:600;color:var(--fv-text-light);border-right:1px solid var(--fv-grey-border);border-bottom:1px solid var(--fv-grey-border);display:flex;align-items:center;justify-content:flex-end;background:#fafafa}
+.slot-cell{padding:6px;border-right:1px solid var(--fv-grey-border);border-bottom:1px solid var(--fv-grey-border);background:#fff}
+.slot{border-radius:6px;padding:8px 10px;border:1px solid transparent;transition:transform 0.1s,box-shadow 0.1s}
+.slot-time{font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:3px;opacity:0.7}
+.slot-status{font-size:11px;font-weight:600}
+.slot-addr{font-size:10px;margin-top:3px;opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot-free{background:var(--fv-green-pale);border-color:var(--fv-green-border);color:var(--fv-green);cursor:pointer}
+.slot-free:hover{transform:translateY(-1px);box-shadow:0 3px 8px rgba(46,125,50,0.2)}
+.slot-approved{background:var(--fv-blue-bg);border-color:var(--fv-blue-border);color:var(--fv-blue);cursor:pointer}
+.slot-approved:hover{transform:translateY(-1px)}
+.slot-pending{background:var(--fv-amber-bg);border-color:var(--fv-amber-border);color:var(--fv-amber);cursor:pointer}
+.slot-pending:hover{transform:translateY(-1px)}
+.slot-na{background:#fff8e1;border-color:#ffe082;color:#e65100;cursor:default}
+.slot-na-override{background:#fff8e1;border-color:#ffe082;color:#e65100;cursor:pointer}
+.slot-na-override:hover{transform:translateY(-1px)}
+.slot-holiday{background:var(--fv-red-bg);border-color:var(--fv-red-border);color:var(--fv-red);cursor:default}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;padding:10px 14px;background:#fff;border:1px solid var(--fv-grey-border);border-radius:var(--radius);align-items:center}
+.legend-lbl{font-size:10px;font-weight:700;color:var(--fv-text-light);text-transform:uppercase;letter-spacing:0.06em;margin-right:6px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--fv-text-light)}
+.legend-dot{width:12px;height:12px;border-radius:3px;border:1px solid transparent;flex-shrink:0}
+.no-slots-banner{background:var(--fv-amber-bg);border:1px solid var(--fv-amber-border);border-radius:var(--radius);padding:14px 18px;font-size:13px;color:var(--fv-amber);font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+
+/* PASSWORD MODAL */
+.pw-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:2000;display:flex;align-items:center;justify-content:center}
+.pw-box{background:#fff;border-radius:var(--radius);padding:32px;max-width:360px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.2);text-align:center}
+.pw-icon{width:56px;height:56px;background:var(--fv-green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px}
+.pw-title{font-size:16px;font-weight:700;color:var(--fv-text);margin-bottom:6px}
+.pw-sub{font-size:13px;color:var(--fv-text-light);margin-bottom:20px}
+.pw-input{width:100%;padding:10px 14px;border:1px solid var(--fv-grey-border);border-radius:6px;font-size:14px;font-family:var(--font);outline:none;text-align:center;letter-spacing:0.1em}
+.pw-input:focus{border-color:var(--fv-green);box-shadow:0 0 0 3px rgba(46,125,50,0.12)}
+.pw-input.error{border-color:var(--fv-red);box-shadow:0 0 0 3px rgba(198,40,40,0.12);animation:shake 0.3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.pw-error{font-size:12px;color:var(--fv-red);margin-top:8px;font-weight:600;min-height:18px}
+.pw-btn{width:100%;margin-top:14px;padding:10px;background:var(--fv-green);color:white;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font)}
+.pw-btn:hover{opacity:0.88}
+.pw-cancel{background:none;border:none;color:var(--fv-text-light);font-size:12px;cursor:pointer;margin-top:10px;font-family:var(--font);text-decoration:underline}
+
+/* MODAL */
+.modal-backdrop{background:rgba(0,0,0,0.4);padding:40px 20px;display:flex;align-items:flex-start;justify-content:center;min-height:300px}
+.modal{background:#fff;border-radius:var(--radius);width:100%;max-width:520px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18)}
+.modal-header{background:var(--fv-green);padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{color:white;font-size:15px;font-weight:700;font-family:var(--font)}
+.modal-close{background:none;border:none;color:rgba(255,255,255,0.8);cursor:pointer;font-size:22px;line-height:1;padding:0 4px}
+.modal-body{padding:22px}
+.modal-footer{padding:14px 22px;background:#fafafa;border-top:1px solid var(--fv-grey-border);display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:11px;font-weight:700;color:var(--fv-text-light);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px}
+.form-input,.form-select,.form-textarea{width:100%;padding:9px 12px;border:1px solid var(--fv-grey-border);border-radius:6px;font-size:13px;color:var(--fv-text);outline:none;font-family:var(--font)}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--fv-green);box-shadow:0 0 0 3px rgba(46,125,50,0.12)}
+.form-textarea{resize:vertical;min-height:72px}
+.info-row{display:flex;gap:8px;padding:10px 14px;background:var(--fv-green-pale);border:1px solid var(--fv-green-border);border-radius:6px;margin-bottom:16px;font-size:12px;color:var(--fv-green);font-weight:500}
+.override-notice{display:flex;gap:8px;padding:10px 14px;background:var(--fv-amber-bg);border:1px solid var(--fv-amber-border);border-radius:6px;margin-bottom:16px;font-size:12px;color:var(--fv-amber);font-weight:600}
+.btn{padding:9px 18px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:opacity 0.15s}
+.btn:hover{opacity:0.88}
+.btn-primary{background:var(--fv-green);color:white}
+.btn-secondary{background:#fff;border:1px solid var(--fv-grey-border);color:var(--fv-text-light)}
+.btn-danger{background:#c62828;color:white}
+.btn-success{background:var(--fv-green);color:white}
+.btn-sm{padding:6px 12px;font-size:12px}
+.delete-confirm{background:var(--fv-red-bg);border:1px solid var(--fv-red-border);border-radius:6px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.delete-confirm-text{font-size:12px;color:var(--fv-red);font-weight:600}
+.delete-confirm-btns{display:flex;gap:6px;flex-shrink:0}
+.booking-detail{background:#fafafa;border:1px solid var(--fv-grey-border);border-radius:6px;padding:14px;margin-bottom:16px}
+.booking-detail-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--fv-grey-border);font-size:13px}
+.booking-detail-row:last-child{border-bottom:none}
+.booking-detail-row .lbl{color:var(--fv-text-light);font-weight:500}
+.booking-detail-row .val{font-weight:600;color:var(--fv-text);text-align:right;max-width:65%}
+.badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700}
+.badge-green{background:var(--fv-green-pale);color:var(--fv-green)}
+.badge-amber{background:var(--fv-amber-bg);color:var(--fv-amber)}
+.approved-banner{background:var(--fv-green-pale);border:1px solid var(--fv-green-border);border-radius:6px;padding:11px 14px;font-size:12px;color:var(--fv-green);font-weight:600;margin-bottom:14px}
+.subtab-bar{display:flex;background:#f5f5f5;border:1px solid var(--fv-grey-border);border-radius:6px;padding:3px;margin-bottom:18px;width:fit-content}
+.subtab{background:none;border:none;padding:6px 16px;font-size:12px;font-weight:600;color:var(--fv-text-light);cursor:pointer;border-radius:4px;font-family:var(--font)}
+.subtab.active{background:var(--fv-green);color:white}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{background:#f5f5f5;border:1px solid var(--fv-grey-border);padding:9px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.05em;color:var(--fv-text-light);text-transform:uppercase}
+.data-table td{border:1px solid var(--fv-grey-border);padding:10px 14px}
+.data-table tr:hover td{background:#f9f9f9}
+.mini-cal{background:#fff;border:1px solid var(--fv-grey-border);border-radius:var(--radius);padding:14px;margin-bottom:14px}
+.mini-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
+.mini-cal-day-hd{font-size:10px;font-weight:700;color:var(--fv-text-light);padding:4px 0}
+.mini-cal-day{font-size:12px;padding:6px 2px;cursor:pointer;border-radius:4px}
+.mini-cal-day:hover{background:var(--fv-green-pale)}
+.mini-cal-day.blocked{background:var(--fv-red-bg);color:var(--fv-red);font-weight:700}
+.mini-cal-day.today-d{background:var(--fv-green);color:white;font-weight:700}
+.mini-cal-day.empty{color:transparent;cursor:default}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:15px;font-weight:700}
+.toast-bar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--fv-green);color:white;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:500;pointer-events:none;opacity:0;transition:opacity 0.25s;font-family:var(--font)}
+.toast-bar.show{opacity:1}
+.additional-info{display:none}
+.additional-info.visible{display:block}
+</style>
+
+<div id="app"></div>
+<div class="toast-bar" id="toast"></div>
+
+<script>
+// ── PASSWORD ──────────────────────────────────────────────────────────────────
+// Change this to your own password
+const MANAGER_PASSWORD = 'frisse2026';
+
+// ── TRANSLATIONS ──────────────────────────────────────────────────────────────
+const T={
+  nl:{
+    brandTag:'Afspraken agenda',viewLabel:'Weergave',viewManager:'Beheerder',viewClient:'Klant',
+    tabAgenda:'Afsprakenoverzicht',tabHolidays:'Vrije dagen & blokkades',
+    userManager:'Ronald — Servicemonteur',userClient:'Klant overzicht',
+    prevWeek:'← Vorige week',nextWeek:'Volgende week →',today:'Vandaag',
+    statAvail:'Beschikbaar',statSlots:'tijdsloten',statConfirmed:'Bevestigd',statBookings:'afspraken',
+    statPending:'In behandeling',statRequests:'aanvragen',statFill:'Bezettingsgraad',
+    exportCsv:'↓ Exporteer CSV',legendTitle:'Legenda',legendAvail:'Beschikbaar',
+    legendConfirmed:'Bevestigd',legendPending:'In behandeling',legendNa:'Niet beschikbaar',
+    legendNaMgr:' (beheerder kan overschrijven)',legendHol:'Feestdag / Gesloten',
+    slotAvail:'Beschikbaar',slotConfirmed:'Bevestigd',slotPending:'In behandeling',slotNa:'Niet beschikbaar',closed:'Gesloten',
+    noSlotsBanner:'Geen beschikbare tijdsloten deze week.',noSlotsNext:'Ga naar eerstvolgende week →',
+    noSlotsNone:'Geen beschikbare tijdsloten in de komende 4 weken. Neem contact op via klantenservice@frisse-ventilatie.nl.',
+    footerNote:'Alle tijden zijn CET · 3-uur blokken · Ochtendsloten zijn onderling exclusief',
+    manageTitle:'Afspraak beheren',approvedBanner:'✓ Bevestigd — klant is geïnformeerd.',
+    deleteConfirm:'⚠ Afspraak definitief verwijderen?',cancel:'Annuleren',yesDelete:'Ja, verwijder',
+    close:'Sluiten',delete:'Verwijder',approve:'✓ Bevestigen',genConfirm:'Bevestiging genereren',
+    bookTitle:'Afspraak aanvragen',overrideTitle:'Tijdslot boeken — Overschrijving',
+    overrideNote:'⚠ Beheerder overschrijving — geblokkeerd tijdslot.',
+    labelAddress:'Straatnaam & huisnummer',labelContact:'Contactpersoon',labelEmail:'E-mailadres',
+    labelService:'Type service',labelAdditional:'Aanvullende informatie',additionalReq:'Verplicht bij reparatie',
+    labelComments:'Opmerkingen',commentsOpt:'(optioneel)',
+    pendingNote:'⚠ Aanvragen worden bevestigd na goedkeuring van de monteur.',
+    submitRequest:'Aanvraag versturen',sending:'Versturen…',
+    addressPh:'bijv. Keizersgracht 123, Amsterdam',contactPh:'Volledige naam',emailPh:'naam@bedrijf.nl',
+    additionalPh:'Beschrijf het probleem met het ventilatiesysteem…',
+    commentsPh:'Toegangsinstructies, voorkeuren of andere opmerkingen…',
+    serviceTypes:[{value:'',label:'— Selecteer type —'},{value:'service',label:'1 — Onderhoud ventilatiesysteem'},{value:'repair',label:'2 — Reparatie ventilatiesysteem'}],
+    confirmTitle:'Afspraakbevestiging',confirmHeader:'Frisse ventilatie — Afspraakbevestiging',
+    copyClipboard:'Kopieer naar klembord',
+    rowDate:'Datum',rowSlot:'Tijdslot',rowAddr:'Adres',rowContact:'Contactpersoon',rowEmail:'E-mail',
+    rowService:'Servicetype',rowAdditional:'Aanvullend',rowComments:'Opmerkingen',rowStatus:'Status',rowRef:'Referentie',rowTime:'Tijd',
+    statusConfirmed:'Bevestigd',statusPending:'In behandeling',
+    blockTitle:'Dag blokkeren',blockBtn:'Dag blokkeren',blockDescPh:'bijv. Intern opleidingsdag',
+    blockDate:'Datum',blockDesc:'Omschrijving',blockType:'Type',blockFull:'Hele dag',blockHalf:'Halve dag',
+    holCalTab:'Kalender',holListTab:'Lijst',holAddTab:'+ Toevoegen',
+    holDate:'Datum',holDesc:'Omschrijving',holType:'Type',holRemove:'Verwijder',
+    holFullDay:'Hele dag',holHalfDay:'Halve dag',holBlockHint:'Klik een dag om te blokkeren / deblokkeren',
+    holAddDutch:'+ Nederlandse feestdagen 2026 toevoegen',holNamePh:'bijv. Nationale feestdag',
+    holAddBtn:'Dag blokkeren',holSectionTitle:'Vrije dagen & Blokkades',
+    toastDeleted:'Afspraak verwijderd.',toastApproved:'Afspraak bevestigd.',
+    toastCreated:'Afspraak aangemaakt en bevestigd.',
+    toastSubmitted:'Aanvraag verstuurd! Ronald neemt contact met u op ter bevestiging.',
+    toastSubmitFail:'Versturen mislukt. Probeer opnieuw.',
+    toastBlockRemoved:'Blokkade verwijderd.',toastBlocked:'Dag geblokkeerd.',
+    toastCopied:'Bevestiging gekopieerd.',toastCopyFail:'Kopiëren mislukt.',
+    toastFillReq:'Vul een adres in en selecteer een servicetype.',
+    toastRepairReq:'Beschrijf het probleem voor reparatieafspraken.',toastHolFill:'Vul datum en omschrijving in.',
+    pwTitle:'Beheerder inloggen',pwSub:'Voer het wachtwoord in om door te gaan.',
+    pwPlaceholder:'Wachtwoord',pwBtn:'Inloggen',pwError:'Onjuist wachtwoord. Probeer opnieuw.',
+    pwCancel:'Annuleren',pwLogout:'Uitloggen',
+    weekdays:['Ma','Di','Wo','Do','Vr','Za','Zo'],
+    dayNames:d=>d.toLocaleDateString('nl-NL',{weekday:'short'}),
+    fmtDateShort:d=>d.toLocaleDateString('nl-NL',{day:'2-digit',month:'short'}),
+    fmtDateLong:ds=>{const d=parseLocalDate(ds);return d.toLocaleDateString('nl-NL',{day:'2-digit',month:'short',year:'numeric'})},
+    monthName:d=>d.toLocaleDateString('nl-NL',{month:'long',year:'numeric'}),
+  },
+  en:{
+    brandTag:'Appointment scheduler',viewLabel:'View',viewManager:'Manager',viewClient:'Client',
+    tabAgenda:'Booking agenda',tabHolidays:'Holidays & blocked days',
+    userManager:'Ronald — Service engineer',userClient:'Client view',
+    prevWeek:'← Previous week',nextWeek:'Next week →',today:'Today',
+    statAvail:'Available',statSlots:'slots',statConfirmed:'Confirmed',statBookings:'bookings',
+    statPending:'Pending',statRequests:'awaiting approval',statFill:'Fill rate',
+    exportCsv:'↓ Export CSV',legendTitle:'Legend',legendAvail:'Available',
+    legendConfirmed:'Confirmed',legendPending:'Pending',legendNa:'Not available',
+    legendNaMgr:' (manager can override)',legendHol:'Holiday / Closed',
+    slotAvail:'Available',slotConfirmed:'Confirmed',slotPending:'Pending approval',slotNa:'Not available',closed:'Closed',
+    noSlotsBanner:'No available slots this week.',noSlotsNext:'View next available week →',
+    noSlotsNone:'No available slots in the next 4 weeks. Please contact us at klantenservice@frisse-ventilatie.nl.',
+    footerNote:'All times CET · 3-hour slots · Morning slots are mutually exclusive',
+    manageTitle:'Manage booking',approvedBanner:'✓ Confirmed — client has been notified.',
+    deleteConfirm:'⚠ Permanently delete this booking?',cancel:'Cancel',yesDelete:'Yes, delete',
+    close:'Close',delete:'Delete',approve:'✓ Confirm',genConfirm:'Generate confirmation',
+    bookTitle:'Request appointment',overrideTitle:'Book slot — Manager override',
+    overrideNote:'⚠ Manager override — booking a restricted slot.',
+    labelAddress:'Street name & number',labelContact:'Contact name',labelEmail:'Email address',
+    labelService:'Service type',labelAdditional:'Additional information',additionalReq:'Required for repair',
+    labelComments:'Comments',commentsOpt:'(optional)',
+    pendingNote:'⚠ Requests are confirmed after approval by the engineer.',
+    submitRequest:'Submit request',sending:'Sending…',
+    addressPh:'e.g. Keizersgracht 123, Amsterdam',contactPh:'Full name',emailPh:'name@company.nl',
+    additionalPh:'Describe the issue with the ventilation system…',
+    commentsPh:'Access instructions, preferences or other notes…',
+    serviceTypes:[{value:'',label:'— Select type —'},{value:'service',label:'1 — Service ventilation system'},{value:'repair',label:'2 — Repair ventilation system'}],
+    confirmTitle:'Booking confirmation',confirmHeader:'Frisse ventilatie — Booking confirmation',
+    copyClipboard:'Copy to clipboard',
+    rowDate:'Date',rowSlot:'Time slot',rowAddr:'Address',rowContact:'Contact',rowEmail:'Email',
+    rowService:'Service type',rowAdditional:'Additional info',rowComments:'Comments',rowStatus:'Status',rowRef:'Reference',rowTime:'Time',
+    statusConfirmed:'Confirmed',statusPending:'Pending approval',
+    blockTitle:'Block day',blockBtn:'Block day',blockDescPh:'e.g. Internal training day',
+    blockDate:'Date',blockDesc:'Description',blockType:'Type',blockFull:'Full day',blockHalf:'Half day',
+    holCalTab:'Calendar',holListTab:'List',holAddTab:'+ Add',
+    holDate:'Date',holDesc:'Name',holType:'Type',holRemove:'Remove',
+    holFullDay:'Full day',holHalfDay:'Half day',holBlockHint:'Click a day to block / unblock',
+    holAddDutch:'+ Add Dutch public holidays 2026',holNamePh:'e.g. Bank holiday',
+    holAddBtn:'Add blocked day',holSectionTitle:'Holidays & Blocked Days',
+    toastDeleted:'Booking deleted.',toastApproved:'Booking confirmed.',
+    toastCreated:'Booking created and confirmed.',
+    toastSubmitted:'Request sent! Ronald will contact you to confirm.',
+    toastSubmitFail:'Sending failed. Please try again.',
+    toastBlockRemoved:'Block removed.',toastBlocked:'Day blocked.',
+    toastCopied:'Confirmation copied.',toastCopyFail:'Copy failed.',
+    toastFillReq:'Please enter an address and select a service type.',
+    toastRepairReq:'Please describe the fault for repair bookings.',toastHolFill:'Please fill in date and name.',
+    pwTitle:'Manager login',pwSub:'Enter the password to continue.',
+    pwPlaceholder:'Password',pwBtn:'Log in',pwError:'Incorrect password. Please try again.',
+    pwCancel:'Cancel',pwLogout:'Log out',
+    weekdays:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    dayNames:d=>d.toLocaleDateString('en-GB',{weekday:'short'}),
+    fmtDateShort:d=>d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'}),
+    fmtDateLong:ds=>{const d=parseLocalDate(ds);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})},
+    monthName:d=>d.toLocaleDateString('en-GB',{month:'long',year:'numeric'}),
+  }
+};
+
+function parseLocalDate(ds){const[y,m,d]=ds.split('-').map(Number);const r=new Date(y,m-1,d);r.setHours(0,0,0,0);return r}
+function toDS(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+const TODAY=new Date();TODAY.setHours(0,0,0,0);
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r}
+function sameDay(a,b){return toDS(a)===toDS(b)}
+function isWeekend(d){return d.getDay()===0||d.getDay()===6}
+function mondayOf(d){const r=new Date(d);const day=r.getDay();const diff=day===0?-6:1-day;r.setDate(r.getDate()+diff);r.setHours(0,0,0,0);return r}
+function diffDays(a,b){const ad=new Date(a);ad.setHours(0,0,0,0);const bd=new Date(b);bd.setHours(0,0,0,0);return Math.round((bd-ad)/(1000*60*60*24))}
+function bizDate(n){let d=new Date(TODAY);let c=0;while(c<n){d.setDate(d.getDate()+1);if(!isWeekend(d))c++;}return toDS(d)}
+function bizDaysAhead(t){let c=0;let d=new Date(TODAY);while(d<t){d.setDate(d.getDate()+1);if(!isWeekend(d))c++;}return c}
+function toast(msg,dur=3000){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur)}
+
+async function loadBookings(){
+  try{
+    const res=await fetch(API_BASE,{cache:'no-store'});
+    if(!res.ok)throw new Error('load_failed');
+    APP.bookings=await res.json();
+    APP.bookingsLoaded=true;APP.bookingsLoadError=false;
+  }catch(e){
+    APP.bookingsLoadError=true;
+  }
+}
+
+async function loadHolidays(){
+  try{
+    const res=await fetch(HOLIDAYS_API_BASE,{cache:'no-store'});
+    if(!res.ok)throw new Error('load_failed');
+    APP.holidays=await res.json();
+    APP.holidaysLoaded=true;APP.holidaysLoadError=false;
+  }catch(e){
+    APP.holidaysLoadError=true;
+  }
+}
+
+const SLOTS=[{label:'08:00–11:00',start:8,id:'am1'},{label:'09:00–12:00',start:9,id:'am2'},{label:'13:00–16:00',start:13,id:'pm'}];
+const DUTCH_HOL_2026=[{date:'2026-01-01',name:'Nieuwjaarsdag / New Year\'s Day'},{date:'2026-04-03',name:'Goede Vrijdag / Good Friday'},{date:'2026-04-06',name:'Tweede Paasdag / Easter Monday'},{date:'2026-04-27',name:'Koningsdag / King\'s Day'},{date:'2026-05-14',name:'Hemelvaartsdag / Ascension Day'},{date:'2026-05-25',name:'Tweede Pinksterdag / Whit Monday'},{date:'2026-12-25',name:'Eerste Kerstdag / Christmas Day'},{date:'2026-12-26',name:'Tweede Kerstdag / Boxing Day'}];
+
+// Bookings AND holidays/blocked days now both live server-side (Netlify Blobs,
+// via /api/bookings and /api/holidays) so every visitor — any device, any
+// browser — sees the same list. This is what makes the slot-conflict check
+// actually work across different clients, and keeps a manager's blocked days
+// visible to clients on other devices too.
+const API_BASE='/api/bookings';
+const HOLIDAYS_API_BASE='/api/holidays';
+const APP={
+  lang:'nl',view:'client',tab:'agenda',holSubTab:'list',weekOffset:0,modal:null,
+  managerUnlocked:false,showPwModal:false,pwError:false,
+  bookingsLoaded:false,bookingsLoadError:false,
+  holidaysLoaded:false,holidaysLoadError:false,
+  bookings:[],
+  holidays:[],
+  get currentWeekMonday(){return addDays(mondayOf(TODAY),this.weekOffset*7)},
+  get t(){return T[this.lang]},
+};
+
+function isHoliday(d){return APP.holidays.find(h=>h.date===toDS(d))}
+function getSlotState(date,slotId,isClient){
+  if(isWeekend(date)) return null;
+  const t=APP.t;const hol=isHoliday(date);
+  if(hol) return{type:'holiday',label:t.slotNa,icon:'🏖',reason:hol.name};
+  const ds=toDS(date),dow=date.getDay();
+  if(slotId==='pm'&&(dow===4||dow===5)&&diffDays(TODAY,date)<7)
+    return{type:'na',label:t.slotNa,icon:'⏰',reason:APP.lang==='nl'?'Min. 7 dagen van tevoren':'Min. 7 days advance notice'};
+  if(isClient){
+    if(bizDaysAhead(date)<=2) return{type:'na',label:t.slotNa,icon:'⏰',reason:APP.lang==='nl'?'Binnen 2 werkdagen':'Within 2 business days'};
+    if(date<mondayOf(TODAY)) return{type:'na',label:t.slotNa,icon:'⏰'};
+    if(date>addDays(TODAY,31)) return{type:'na',label:t.slotNa,icon:'⏰'};
+  }
+  const booking=APP.bookings.find(b=>b.date===ds&&b.slot===slotId);
+  if(booking){
+    if(isClient) return{type:'na',label:t.slotNa,icon:'⏰'};
+    return{type:booking.status,label:booking.status==='approved'?t.slotConfirmed:t.slotPending,icon:booking.status==='approved'?'✓':'⏳',booking};
+  }
+  if(slotId==='am2'&&APP.bookings.find(b=>b.date===ds&&b.slot==='am1')) return{type:'na',label:t.slotNa,icon:'⏰'};
+  if(slotId==='am1'&&APP.bookings.find(b=>b.date===ds&&b.slot==='am2')) return{type:'na',label:t.slotNa,icon:'⏰'};
+  return{type:'free',label:t.slotAvail,icon:'+'};
+}
+function managerCanOverride(date,slotId){
+  if(isWeekend(date)||isHoliday(date)) return false;
+  return !APP.bookings.find(b=>b.date===toDS(date)&&b.slot===slotId);
+}
+function weekHasFreeSlots(mon,isClient){
+  const days=[0,1,2,3,4].map(i=>addDays(mon,i));
+  for(const d of days){
+    if(isWeekend(d)||isHoliday(d)) continue;
+    const ds=toDS(d);
+    const mb=APP.bookings.find(b=>b.date===ds&&(b.slot==='am1'||b.slot==='am2'));
+    if(!mb){const a1=getSlotState(d,'am1',isClient);const a2=getSlotState(d,'am2',isClient);if((a1&&a1.type==='free')||(a2&&a2.type==='free'))return true;}
+    const pm=getSlotState(d,'pm',isClient);if(pm&&pm.type==='free')return true;
+  }
+  return false;
+}
+function firstAvailClientOffset(){for(let o=0;o<=4;o++){if(weekHasFreeSlots(addDays(mondayOf(TODAY),o*7),true))return o;}return null}
+function countWeekStats(days,isClient){
+  let avail=0,approved=0,pending=0,total=0;
+  days.forEach(d=>{
+    if(isWeekend(d))return;const ds=toDS(d);
+    const mb=APP.bookings.find(b=>b.date===ds&&(b.slot==='am1'||b.slot==='am2'));
+    const a1=getSlotState(d,'am1',isClient);const a2=getSlotState(d,'am2',isClient);
+    if(!isHoliday(d)){total++;if(!mb&&((a1&&a1.type==='free')||(a2&&a2.type==='free')))avail++;if(mb){if(mb.status==='approved')approved++;else pending++;}}
+    const pm=getSlotState(d,'pm',isClient);
+    if(pm){total++;if(pm.type==='free')avail++;if(pm.type==='approved')approved++;if(pm.type==='pending')pending++;}
+  });
+  return{avail,approved,pending,total};
+}
+
+function render(){document.getElementById('app').innerHTML=buildApp();attachEvents()}
+
+function buildApp(){
+  return`<div style="min-height:100vh;background:#f9f9f9">
+    ${buildHeader()}${buildViewBar()}${buildTabBar()}
+    <div class="main">
+      ${(APP.bookingsLoadError||APP.holidaysLoadError)?buildLoadErrorBanner():''}
+      ${buildTabContent()}
+    </div>
+    ${APP.modal?`<div style="padding:0 28px 32px">${buildModal()}</div>`:''}
+    ${APP.showPwModal?buildPwModal():''}
+  </div>`;
+}
+
+function buildLoadErrorBanner(){
+  const nl=APP.lang==='nl';
+  return`<div class="no-slots-banner" style="background:var(--fv-red-bg);border-color:var(--fv-red-border);color:var(--fv-red);justify-content:space-between">
+    <span>⚠ ${nl?'Kan de actuele agenda en/of blokkades niet ophalen. Wat je hier ziet kan verouderd zijn.':'Could not load the live agenda and/or blocked days. What you see here may be out of date.'}</span>
+    <button class="btn btn-sm btn-secondary" onclick="retryLoadBookings()">${nl?'Opnieuw proberen':'Retry'}</button>
+  </div>`;
+}
+
+function buildPwModal(){
+  const t=APP.t;
+  return`<div class="pw-overlay" onclick="if(event.target.classList.contains('pw-overlay'))cancelPw()">
+    <div class="pw-box">
+      <div class="pw-icon">🔒</div>
+      <div class="pw-title">${t.pwTitle}</div>
+      <div class="pw-sub">${t.pwSub}</div>
+      <input class="pw-input ${APP.pwError?'error':''}" id="pw-input" type="password"
+        placeholder="${t.pwPlaceholder}"
+        onkeydown="if(event.key==='Enter')checkPassword()"
+        autofocus>
+      <div class="pw-error">${APP.pwError?t.pwError:''}</div>
+      <button class="pw-btn" onclick="checkPassword()">${t.pwBtn}</button>
+      <br><button class="pw-cancel" onclick="cancelPw()">${t.pwCancel}</button>
+    </div>
+  </div>`;
+}
+
+function buildHeader(){
+  const t=APP.t;const isClient=APP.view==='client';
+  return`<div class="app-header"><div class="header-inner">
+    <div class="brand">
+      <div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div>
+      <div><div class="brand-name">Frisse ventilatie</div><div class="brand-tag">${t.brandTag}</div></div>
+    </div>
+    <div class="header-right">
+      <div class="lang-toggle">
+        <button class="lang-btn ${APP.lang==='nl'?'active':''}" onclick="setLang('nl')">NL</button>
+        <button class="lang-btn ${APP.lang==='en'?'active':''}" onclick="setLang('en')">EN</button>
+      </div>
+      <div class="user-chip">
+        <div class="user-dot">${isClient?'CV':'RM'}</div>
+        <span>${isClient?t.userClient:t.userManager}</span>
+        ${APP.managerUnlocked?`<button onclick="logoutManager()" style="background:none;border:none;color:var(--fv-green);font-size:11px;cursor:pointer;font-weight:700;margin-left:4px;text-decoration:underline">${t.pwLogout}</button>`:''}
+      </div>
+    </div>
+  </div></div>`;
+}
+
+function buildViewBar(){
+  const t=APP.t;
+  return`<div class="view-bar">
+    <span class="view-label">${t.viewLabel}</span>
+    <div class="view-toggle">
+      <button class="vtbtn ${APP.view==='client'?'active':''}" onclick="switchView('client')">${t.viewClient}</button>
+      <button class="vtbtn ${APP.view==='manager'?'active':''}" onclick="requestManagerView()">${t.viewManager} 🔒</button>
+    </div>
+  </div>`;
+}
+
+function buildTabBar(){
+  const t=APP.t;
+  const tabs=APP.view==='manager'?[{id:'agenda',label:t.tabAgenda},{id:'holidays',label:t.tabHolidays}]:[{id:'agenda',label:t.tabAgenda}];
+  return`<div class="tab-bar">${tabs.map(tb=>`<button class="tab ${APP.tab===tb.id?'active':''}" onclick="setTab('${tb.id}')">${tb.label}</button>`).join('')}</div>`;
+}
+
+function buildTabContent(){
+  if(APP.tab==='agenda') return buildAgenda();
+  if(APP.tab==='holidays') return buildHolidays();
+  return'';
+}
+
+function buildAgenda(){
+  const t=APP.t;const isClient=APP.view==='client';
+  const mon=APP.currentWeekMonday;
+  const days=[0,1,2,3,4].map(i=>addDays(mon,i));
+  const wl=`${t.fmtDateShort(days[0])} – ${t.fmtDateShort(days[4])} ${days[0].getFullYear()}`;
+  const {avail,approved,pending,total}=countWeekStats(days,isClient);
+  const fillRate=total>0?Math.round(((total-avail)/total)*100):0;
+  const canPrev=!isClient||APP.weekOffset>0;const canNext=!isClient||APP.weekOffset<4;
+  const currentFree=isClient&&weekHasFreeSlots(mon,true);
+  const firstOffset=isClient?firstAvailClientOffset():null;
+  const noAnywhere=isClient&&firstOffset===null;
+  const banner=isClient&&!currentFree?`<div class="no-slots-banner">⏰ ${noAnywhere?t.noSlotsNone:firstOffset!==APP.weekOffset?`${t.noSlotsBanner} <button onclick="jumpToWeek(${firstOffset})" style="background:none;border:none;color:var(--fv-amber);font-weight:700;cursor:pointer;text-decoration:underline;font-size:13px">${t.noSlotsNext}</button>`:t.noSlotsBanner}</div>`:'';
+
+  return`
+    <div class="week-nav">
+      <button class="wk-btn" onclick="changeWeek(-1)" ${!canPrev?'disabled style="opacity:0.3;cursor:not-allowed"':''}>${t.prevWeek}</button>
+      <span class="wk-label">${wl}</span>
+      <button class="wk-btn" onclick="changeWeek(1)" ${!canNext?'disabled style="opacity:0.3;cursor:not-allowed"':''}>${t.nextWeek}</button>
+      ${!isClient?`<button class="today-btn" onclick="goToday()">${t.today}</button>`:''}
+    </div>
+    ${banner}
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">${t.statAvail}</div><div class="stat-value" style="color:var(--fv-green)">${avail}</div><div class="stat-sub">${t.statSlots}</div></div>
+      ${!isClient?`
+      <div class="stat-card"><div class="stat-label">${t.statConfirmed}</div><div class="stat-value" style="color:var(--fv-blue)">${approved}</div><div class="stat-sub">${t.statBookings}</div></div>
+      <div class="stat-card"><div class="stat-label">${t.statPending}</div><div class="stat-value" style="color:var(--fv-amber)">${pending}</div><div class="stat-sub">${t.statRequests}</div></div>
+      <div class="stat-card" style="min-width:140px"><div class="stat-label">${t.statFill}</div><div class="stat-value" style="color:var(--fv-green)">${fillRate}%</div><div class="fill-bar"><div class="fill-bar-inner" style="width:${fillRate}%"></div></div></div>
+      <div class="stat-card" style="margin-left:auto;justify-content:center"><button class="btn btn-sm btn-secondary" onclick="exportCSV()">${t.exportCsv}</button></div>`:''}
+    </div>
+    <div class="legend">
+      <span class="legend-lbl">${t.legendTitle}</span>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--fv-green-pale);border-color:var(--fv-green-border)"></div>${t.legendAvail}</div>
+      ${!isClient?`<div class="legend-item"><div class="legend-dot" style="background:var(--fv-blue-bg);border-color:var(--fv-blue-border)"></div>${t.legendConfirmed}</div><div class="legend-item"><div class="legend-dot" style="background:var(--fv-amber-bg);border-color:var(--fv-amber-border)"></div>${t.legendPending}</div>`:''}
+      <div class="legend-item"><div class="legend-dot" style="background:#fff8e1;border-color:#ffe082"></div>${t.legendNa}${!isClient?t.legendNaMgr:''}</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--fv-red-bg);border-color:var(--fv-red-border)"></div>${t.legendHol}</div>
+    </div>
+    <div class="cal-wrap">
+      <div class="cal-head">
+        <div class="cal-head-cell">${APP.lang==='nl'?'Tijd':'Time'}</div>
+        ${days.map(d=>{const hol=isHoliday(d);return`<div class="cal-head-cell ${sameDay(d,TODAY)?'today-col':''}"><div>${t.dayNames(d)}</div><div class="date-num">${d.getDate()}</div>${hol?`<div style="font-size:9px;color:rgba(255,200,200,0.9);margin-top:2px">🏖 ${t.closed}</div>`:''}</div>`;}).join('')}
+      </div>
+      <div class="cal-body">
+        ${SLOTS.map(slot=>`<div style="display:contents">
+          <div class="time-label">${slot.start.toString().padStart(2,'0')}:00</div>
+          ${days.map(d=>{
+            const st=getSlotState(d,slot.id,isClient);
+            if(!st) return`<div class="slot-cell"></div>`;
+            const ds=toDS(d);
+            let cls,clickable=false,oc='';
+            if(st.type==='free'){cls='slot-free';clickable=true;}
+            else if(st.type==='approved'){cls='slot-approved';clickable=!isClient;}
+            else if(st.type==='pending'){cls='slot-pending';clickable=!isClient;}
+            else if(st.type==='holiday'){cls='slot-holiday';}
+            else if(st.type==='na'){if(!isClient&&managerCanOverride(d,slot.id)){cls='slot-na-override';clickable=true;}else cls='slot-na';}
+            if(clickable) oc=`onclick="slotClick('${ds}','${slot.id}')"`;
+            return`<div class="slot-cell" ${oc}><div class="slot ${cls}">
+              <div class="slot-time">${slot.label}</div>
+              <div class="slot-status">${st.icon} ${st.label}</div>
+              ${st.booking&&!isClient?`<div class="slot-addr">${st.booking.address||''}</div>`:''}
+              ${!isClient&&st.type==='na'&&st.reason?`<div style="font-size:9px;opacity:0.7;margin-top:2px">${st.reason}</div>`:''}
+            </div></div>`;
+          }).join('')}
+        </div>`).join('')}
+      </div>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--fv-text-light);text-align:right">${t.footerNote}</div>`;
+}
+
+function buildHolidays(){
+  const t=APP.t;const st=APP.holSubTab;
+  const tabs=`<div class="subtab-bar"><button class="subtab ${st==='cal'?'active':''}" onclick="setHolSubTab('cal')">${t.holCalTab}</button><button class="subtab ${st==='list'?'active':''}" onclick="setHolSubTab('list')">${t.holListTab}</button><button class="subtab ${st==='add'?'active':''}" onclick="setHolSubTab('add')">${t.holAddTab}</button></div>`;
+  let content='';
+  if(st==='list'){
+    const sorted=[...APP.holidays].sort((a,b)=>a.date.localeCompare(b.date));
+    content=`<table class="data-table"><thead><tr><th>${t.holDate}</th><th>${t.holDesc}</th><th>${t.holType}</th><th style="width:90px"></th></tr></thead><tbody>${sorted.map(h=>`<tr><td style="font-weight:700">${t.fmtDateLong(h.date)}</td><td>${h.name}</td><td>${h.type==='full'?t.holFullDay:t.holHalfDay}</td><td><button class="btn btn-sm btn-danger" onclick="deleteHoliday('${h.id}')">${t.holRemove}</button></td></tr>`).join('')}</tbody></table>`;
+  } else if(st==='cal'){
+    const y=TODAY.getFullYear(),m=TODAY.getMonth();
+    const firstDay=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate();
+    const mn=t.monthName(TODAY);
+    const dh=t.weekdays.map(d=>`<div class="mini-cal-day-hd">${d}</div>`).join('');
+    let cells='';const sp=firstDay===0?6:firstDay-1;
+    for(let i=0;i<sp;i++) cells+=`<div class="mini-cal-day empty">.</div>`;
+    for(let day=1;day<=dim;day++){const d=new Date(y,m,day);const ds=toDS(d);const hol=APP.holidays.find(h=>h.date===ds);cells+=`<div class="mini-cal-day ${sameDay(d,TODAY)?'today-d':''} ${hol?'blocked':''}" onclick="quickBlockDay('${ds}')">${day}</div>`;}
+    content=`<div class="mini-cal"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span style="font-size:13px;font-weight:700;text-transform:capitalize">${mn}</span><span style="font-size:11px;color:var(--fv-text-light)">${t.holBlockHint}</span></div><div class="mini-cal-grid">${dh}${cells}</div></div><button class="btn btn-primary btn-sm" onclick="addDutchHols()">${t.holAddDutch}</button>`;
+  } else {
+    content=`<div style="max-width:380px"><div class="form-group"><label class="form-label">${t.blockDate}</label><input class="form-input" type="date" id="hol-date"/></div><div class="form-group"><label class="form-label">${t.holDesc}</label><input class="form-input" type="text" id="hol-name" placeholder="${t.holNamePh}"/></div><div class="form-group"><label class="form-label">${t.blockType}</label><select class="form-select" id="hol-type"><option value="full">${t.blockFull}</option><option value="half">${t.blockHalf}</option></select></div><button class="btn btn-primary" onclick="addHoliday()">${t.holAddBtn}</button></div>`;
+  }
+  return`<div class="section-header"><span class="section-title">${t.holSectionTitle}</span></div>${tabs}${content}`;
+}
+
+function buildModal(){
+  const m=APP.modal;
+  if(m.type==='manage') return buildManageModal(m);
+  if(m.type==='book') return buildBookModal(m);
+  if(m.type==='confirm') return buildConfirmModal(m);
+  if(m.type==='quickblock') return buildQuickBlockModal(m);
+  return'';
+}
+function modalShell(title,body,footer){
+  return`<div class="modal-backdrop"><div class="modal"><div class="modal-header"><h3>${title}</h3><button class="modal-close" onclick="closeModal()">×</button></div><div class="modal-body">${body}</div><div class="modal-footer">${footer}</div></div></div>`;
+}
+function buildManageModal(m){
+  const t=APP.t;const b=m.booking,slot=SLOTS.find(s=>s.id===b.slot);
+  const svcLabel=t.serviceTypes.find(s=>s.value===b.serviceType)?.label||b.serviceType||'—';
+  const delStrip=m.confirmDelete?`<div class="delete-confirm"><span class="delete-confirm-text">${t.deleteConfirm}</span><div class="delete-confirm-btns"><button class="btn btn-sm btn-secondary" onclick="cancelDeleteBooking()">${t.cancel}</button><button class="btn btn-sm btn-danger" onclick="confirmDeleteBooking('${b.id}')">${t.yesDelete}</button></div></div>`:'';
+  const rows=[[t.rowDate,t.fmtDateLong(b.date)],[t.rowSlot,slot.label],[t.rowAddr,b.address||'—'],[t.rowContact,b.contact||'—'],[t.rowEmail,b.email||'—'],[t.rowService,svcLabel],...(b.additionalInfo?[[t.rowAdditional,b.additionalInfo]]:[]),...(b.comments?[[t.rowComments,b.comments]]:[]),[t.rowStatus,`<span class="badge ${b.status==='approved'?'badge-green':'badge-amber'}">${b.status==='approved'?t.statusConfirmed:t.statusPending}</span>`]];
+  const body=`${b.status==='approved'?`<div class="approved-banner">${t.approvedBanner}</div>`:''}${delStrip}<div class="booking-detail">${rows.map(([l,v])=>`<div class="booking-detail-row"><span class="lbl">${l}</span><span class="val">${v}</span></div>`).join('')}</div>`;
+  const footer=`<button class="btn btn-secondary" onclick="closeModal()">${t.close}</button><button class="btn btn-danger btn-sm" onclick="askDeleteBooking()">${t.delete}</button>${b.status==='pending'?`<button class="btn btn-success" onclick="approveBooking('${b.id}')">${t.approve}</button>`:''}<button class="btn btn-primary btn-sm" onclick="showModal({type:'confirm',booking:APP.modal.booking})">${t.genConfirm}</button>`;
+  return modalShell(t.manageTitle,body,footer);
+}
+function buildBookModal(m){
+  const t=APP.t;const slot=SLOTS.find(s=>s.id===m.slotId);
+  const body=`
+    <div class="info-row">📅 <strong>${t.fmtDateLong(m.date)}</strong> · ${slot.label} (3 ${APP.lang==='nl'?'uur':'hours'})</div>
+    ${m.override?`<div class="override-notice">${t.overrideNote}</div>`:''}
+    <div class="form-group"><label class="form-label">${t.labelAddress}</label><input class="form-input" id="bk-address" placeholder="${t.addressPh}"></div>
+    <div class="form-group"><label class="form-label">${t.labelContact}</label><input class="form-input" id="bk-contact" placeholder="${t.contactPh}"></div>
+    <div class="form-group"><label class="form-label">${t.labelEmail}</label><input class="form-input" id="bk-email" type="email" placeholder="${t.emailPh}"></div>
+    <div class="form-group"><label class="form-label">${t.labelService}</label><select class="form-select" id="bk-service" onchange="toggleAdditionalInfo()">${t.serviceTypes.map(s=>`<option value="${s.value}">${s.label}</option>`).join('')}</select></div>
+    <div class="form-group additional-info" id="additional-info-group"><label class="form-label">${t.labelAdditional} <span style="color:var(--fv-red);font-size:10px">${t.additionalReq}</span></label><textarea class="form-textarea" id="bk-additional" placeholder="${t.additionalPh}"></textarea></div>
+    <div class="form-group"><label class="form-label">${t.labelComments} <span style="font-weight:400;color:var(--fv-text-light);text-transform:none;letter-spacing:0">${t.commentsOpt}</span></label><textarea class="form-textarea" id="bk-comments" placeholder="${t.commentsPh}"></textarea></div>
+    <div style="font-size:11px;color:var(--fv-text-light);margin-top:4px">${t.pendingNote}</div>`;
+  return modalShell(m.override?t.overrideTitle:t.bookTitle,body,`<button class="btn btn-secondary" onclick="closeModal()">${t.cancel}</button><button class="btn btn-primary" id="submit-btn" onclick="submitBooking('${m.date}','${m.slotId}',${!!m.override})">${t.submitRequest}</button>`);
+}
+function buildConfirmModal(m){
+  const t=APP.t;const b=m.booking,slot=SLOTS.find(s=>s.id===b.slot),ref='FV-'+b.id.toUpperCase()+'-'+Date.now().toString().slice(-4);
+  const svcLabel=t.serviceTypes.find(s=>s.value===b.serviceType)?.label||b.serviceType||'—';
+  const rows=[[t.rowRef,ref],[t.rowDate,t.fmtDateLong(b.date)],[t.rowTime,slot.label+` (3 ${APP.lang==='nl'?'uur':'hours'})`],[t.rowAddr,b.address||'—'],[t.rowContact,b.contact||'—'],[t.rowService,svcLabel],...(b.additionalInfo?[[t.rowAdditional,b.additionalInfo]]:[]),...(b.comments?[[t.rowComments,b.comments]]:[])];
+  const body=`<div style="background:var(--fv-green);color:white;border-radius:6px;padding:12px 14px;margin-bottom:16px;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase">${t.confirmHeader}</div>
+    <div class="booking-detail">${rows.map(([l,v])=>`<div class="booking-detail-row"><span class="lbl">${l}</span><span class="val" style="${l===t.rowRef?'font-family:monospace;color:var(--fv-green)':''}">${v}</span></div>`).join('')}</div>`;
+  return modalShell(t.confirmTitle,body,`<button class="btn btn-secondary" onclick="closeModal()">${t.close}</button><button class="btn btn-primary" onclick="copyConf('${ref}','${b.address}','${t.fmtDateLong(b.date)}','${slot.label}','${b.contact}','${svcLabel}')">${t.copyClipboard}</button>`);
+}
+function buildQuickBlockModal(m){
+  const t=APP.t;
+  const body=`<div class="info-row">📅 ${t.fmtDateLong(m.date)}</div><div class="form-group"><label class="form-label">${t.blockDesc}</label><input class="form-input" id="qb-name" placeholder="${t.blockDescPh}"></div><div class="form-group"><label class="form-label">${t.blockType}</label><select class="form-select" id="qb-type"><option value="full">${t.blockFull}</option><option value="half">${t.blockHalf}</option></select></div>`;
+  return modalShell(t.blockTitle,body,`<button class="btn btn-secondary" onclick="closeModal()">${t.cancel}</button><button class="btn btn-danger" onclick="quickBlockSave('${m.date}')">${t.blockBtn}</button>`);
+}
+
+function attachEvents(){
+  window.setLang=l=>{APP.lang=l;render()};
+
+  window.requestManagerView=()=>{
+    if(APP.managerUnlocked){
+      // Already unlocked — switch directly
+      APP.view='manager';APP.tab='agenda';APP.modal=null;APP.weekOffset=0;render();
+    } else {
+      APP.showPwModal=true;APP.pwError=false;render();
+      setTimeout(()=>document.getElementById('pw-input')?.focus(),50);
+    }
+  };
+
+  window.checkPassword=()=>{
+    const val=document.getElementById('pw-input')?.value||'';
+    if(val===MANAGER_PASSWORD){
+      APP.managerUnlocked=true;APP.showPwModal=false;APP.pwError=false;
+      APP.view='manager';APP.tab='agenda';APP.modal=null;APP.weekOffset=0;
+      render();
+    } else {
+      APP.pwError=true;render();
+      setTimeout(()=>{
+        const inp=document.getElementById('pw-input');
+        if(inp){inp.focus();inp.select();}
+      },50);
+    }
+  };
+
+  window.cancelPw=()=>{APP.showPwModal=false;APP.pwError=false;render()};
+
+  window.logoutManager=()=>{
+    APP.managerUnlocked=false;APP.view='client';APP.tab='agenda';
+    APP.modal=null;APP.weekOffset=firstAvailClientOffset()??0;render();
+  };
+
+  window.switchView=v=>{
+    if(v==='manager'){window.requestManagerView();return;}
+    APP.view='client';APP.tab='agenda';APP.modal=null;APP.weekOffset=firstAvailClientOffset()??0;render();
+  };
+
+  window.setTab=tb=>{APP.tab=tb;APP.modal=null;render()};
+  window.changeWeek=n=>{if(APP.view==='client'){const nx=APP.weekOffset+n;if(nx<0||nx>4)return;APP.weekOffset=nx;}else APP.weekOffset+=n;render()};
+  window.jumpToWeek=o=>{APP.weekOffset=o;render()};
+  window.goToday=()=>{APP.weekOffset=0;render()};
+  window.setHolSubTab=t=>{APP.holSubTab=t;render()};
+  window.showModal=m=>{APP.modal=m;render()};
+  window.closeModal=()=>{APP.modal=null;render()};
+  window.toggleAdditionalInfo=()=>{const s=document.getElementById('bk-service');const g=document.getElementById('additional-info-group');if(!s||!g)return;s.value==='repair'?g.classList.add('visible'):g.classList.remove('visible')};
+
+  window.slotClick=(ds,slotId)=>{
+    const date=parseLocalDate(ds),isClient=APP.view==='client';
+    const st=getSlotState(date,slotId,isClient);
+    if(!st)return;
+    if(st.type==='free'){APP.modal={type:'book',date:ds,slotId,override:false};render();}
+    else if(st.type==='na'&&!isClient&&managerCanOverride(date,slotId)){APP.modal={type:'book',date:ds,slotId,override:true};render();}
+    else if((st.type==='pending'||st.type==='approved')&&!isClient){APP.modal={type:'manage',booking:st.booking,confirmDelete:false};render();}
+  };
+
+  window.askDeleteBooking=()=>{APP.modal={...APP.modal,confirmDelete:true};render()};
+  window.cancelDeleteBooking=()=>{APP.modal={...APP.modal,confirmDelete:false};render()};
+
+  window.confirmDeleteBooking=async id=>{
+    const prev=APP.bookings;
+    APP.bookings=APP.bookings.filter(b=>b.id!==id);APP.modal=null;render();
+    try{
+      const res=await fetch(`${API_BASE}?id=${encodeURIComponent(id)}`,{method:'DELETE'});
+      if(!res.ok)throw new Error('delete_failed');
+      toast(APP.t.toastDeleted);
+    }catch(e){
+      APP.bookings=prev;render();
+      toast(APP.lang==='nl'?'Verwijderen mislukt — probeer opnieuw.':'Delete failed — please try again.');
+    }
+  };
+
+  window.approveBooking=async id=>{
+    const b=APP.bookings.find(x=>x.id===id);
+    if(!b)return;
+    const prevStatus=b.status;
+    b.status='approved';APP.modal={type:'manage',booking:b,confirmDelete:false};render();
+    try{
+      const res=await fetch(API_BASE,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+      if(!res.ok)throw new Error('approve_failed');
+      toast(APP.t.toastApproved);
+    }catch(e){
+      b.status=prevStatus;APP.modal={type:'manage',booking:b,confirmDelete:false};render();
+      toast(APP.lang==='nl'?'Bevestigen mislukt — probeer opnieuw.':'Confirm failed — please try again.');
+    }
+  };
+
+  window.submitBooking=async(date,slotId,override)=>{
+    const t=APP.t;
+    const address=document.getElementById('bk-address').value.trim();
+    const contact=document.getElementById('bk-contact').value.trim();
+    const email=document.getElementById('bk-email').value.trim();
+    const serviceType=document.getElementById('bk-service').value;
+    const additionalInfo=document.getElementById('bk-additional')?.value.trim()||'';
+    const comments=document.getElementById('bk-comments').value.trim();
+    if(!address||!serviceType){toast(t.toastFillReq);return;}
+    if(serviceType==='repair'&&!additionalInfo){toast(t.toastRepairReq);return;}
+    const status=APP.view==='manager'?'approved':'pending';
+    const btn=document.getElementById('bk-submit-btn');
+    if(btn){btn.disabled=true;btn.textContent=t.sending;}
+    try{
+      const res=await fetch(API_BASE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,slot:slotId,address,contact,email,serviceType,additionalInfo,comments,status,override:!!override})});
+      if(res.status===409){
+        // Someone else booked this exact slot in the meantime — refresh from the server and stop.
+        await loadBookings();
+        APP.modal=null;render();
+        toast(APP.lang==='nl'?'Dit tijdslot is zojuist door iemand anders geboekt.':'This slot was just booked by someone else.',5000);
+        return;
+      }
+      if(!res.ok)throw new Error('submit_failed');
+      const created=await res.json();
+      APP.bookings.push(created);
+      APP.modal=null;render();
+      toast(APP.view==='manager'?t.toastCreated:t.toastSubmitted,4000);
+    }catch(e){
+      if(btn){btn.disabled=false;btn.textContent=t.submitRequest;}
+      toast(t.toastSubmitFail);
+    }
+  };
+
+  window.loadBookings=loadBookings;
+  window.loadHolidays=loadHolidays;
+  window.retryLoadBookings=async()=>{
+    APP.bookingsLoadError=false;APP.holidaysLoadError=false;render();
+    await Promise.all([loadBookings(),loadHolidays()]);render();
+  };
+
+  window.deleteHoliday=async id=>{
+    const prev=APP.holidays;
+    APP.holidays=APP.holidays.filter(h=>h.id!==id);render();
+    try{
+      const res=await fetch(`${HOLIDAYS_API_BASE}?id=${encodeURIComponent(id)}`,{method:'DELETE'});
+      if(!res.ok)throw new Error('delete_failed');
+      toast(APP.t.toastBlockRemoved);
+    }catch(e){
+      APP.holidays=prev;render();
+      toast(APP.lang==='nl'?'Verwijderen mislukt — probeer opnieuw.':'Delete failed — please try again.');
+    }
+  };
+
+  window.addHoliday=async()=>{
+    const t=APP.t;
+    const date=document.getElementById('hol-date').value,name=document.getElementById('hol-name').value.trim(),type=document.getElementById('hol-type').value;
+    if(!date||!name){toast(t.toastHolFill);return;}
+    try{
+      const res=await fetch(HOLIDAYS_API_BASE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,name,type})});
+      if(!res.ok)throw new Error('add_failed');
+      const created=await res.json();
+      APP.holidays.push(created);
+      APP.holSubTab='list';render();
+    }catch(e){
+      toast(APP.lang==='nl'?'Toevoegen mislukt — probeer opnieuw.':'Adding failed — please try again.');
+    }
+  };
+
+  window.addDutchHols=async()=>{
+    const items=DUTCH_HOL_2026.filter(h=>!APP.holidays.find(x=>x.date===h.date)).map(h=>({date:h.date,name:h.name,type:'full'}));
+    if(!items.length){APP.holSubTab='list';render();return;}
+    try{
+      const res=await fetch(HOLIDAYS_API_BASE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items})});
+      if(!res.ok)throw new Error('bulk_add_failed');
+      APP.holidays=await res.json();
+      APP.holSubTab='list';render();
+    }catch(e){
+      toast(APP.lang==='nl'?'Toevoegen mislukt — probeer opnieuw.':'Adding failed — please try again.');
+    }
+  };
+
+  window.quickBlockDay=ds=>{
+    const ex=APP.holidays.find(h=>h.date===ds);
+    if(ex){window.quickUnblockDay(ds);return;}
+    APP.modal={type:'quickblock',date:ds};render();
+  };
+
+  window.quickUnblockDay=async ds=>{
+    const prev=APP.holidays;
+    APP.holidays=APP.holidays.filter(h=>h.date!==ds);render();
+    try{
+      const res=await fetch(`${HOLIDAYS_API_BASE}?date=${encodeURIComponent(ds)}`,{method:'DELETE'});
+      if(!res.ok)throw new Error('delete_failed');
+      toast(APP.t.toastBlockRemoved);
+    }catch(e){
+      APP.holidays=prev;render();
+      toast(APP.lang==='nl'?'Verwijderen mislukt — probeer opnieuw.':'Delete failed — please try again.');
+    }
+  };
+
+  window.quickBlockSave=async ds=>{
+    const name=document.getElementById('qb-name').value.trim()||(APP.lang==='nl'?'Geblokkeerd':'Blocked'),type=document.getElementById('qb-type').value;
+    try{
+      const res=await fetch(HOLIDAYS_API_BASE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:ds,name,type})});
+      if(!res.ok)throw new Error('add_failed');
+      const created=await res.json();
+      APP.holidays.push(created);
+      APP.modal=null;render();
+      toast(APP.t.toastBlocked);
+    }catch(e){
+      APP.modal=null;render();
+      toast(APP.lang==='nl'?'Blokkeren mislukt — probeer opnieuw.':'Blocking failed — please try again.');
+    }
+  };
+  window.copyConf=(ref,address,date,slot,contact,svc)=>{
+    const t=APP.t;
+    const txt=`FRISSE VENTILATIE\n${t.confirmHeader.toUpperCase()}\n${t.rowRef}: ${ref}\n${t.rowDate}: ${date}\n${t.rowTime}: ${slot}\n${t.rowAddr}: ${address}\n${t.rowContact}: ${contact}\n${t.rowService}: ${svc}`;
+    navigator.clipboard.writeText(txt).then(()=>toast(t.toastCopied)).catch(()=>toast(t.toastCopyFail));
+  };
+  window.exportCSV=()=>{
+    const t=APP.t;
+    const hdr=`${t.rowRef},${t.rowDate},${t.rowSlot},${t.rowAddr},${t.rowContact},${t.rowEmail},${t.rowService},${t.rowAdditional},${t.rowComments},${t.rowStatus}\n`;
+    const rows=APP.bookings.map(b=>{const svc=t.serviceTypes.find(s=>s.value===b.serviceType)?.label||b.serviceType||'';return[b.ref||'',b.date,SLOTS.find(s=>s.id===b.slot)?.label,b.address,b.contact,b.email,svc,b.additionalInfo,b.comments,b.status==='approved'?t.statusConfirmed:t.statusPending].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(',');}).join('\n');
+    const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(hdr+rows);a.download='afspraken.csv';a.download='afspraken.csv';a.click();
+  };
+}
+
+// Load the shared agenda (bookings + holidays) from the server before the
+// first render, so every visitor starts from the same real list instead of
+// an empty/stale one.
+(async function init(){
+  const app=document.getElementById('app');
+  if(app)app.innerHTML='<div style="padding:80px 20px;text-align:center;color:#616161;font-family:\'Open Sans\',system-ui,sans-serif;font-size:13px">'+(APP.lang==='nl'?'Agenda laden…':'Loading agenda…')+'</div>';
+  await Promise.all([loadBookings(),loadHolidays()]);
+  render();
+})();
+</script>
